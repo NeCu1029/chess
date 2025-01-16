@@ -2,7 +2,6 @@ import chess
 import random
 import pos
 
-# 테스트 주석
 
 def base(board: chess.BaseBoard):
     res = 0
