@@ -20,11 +20,12 @@ def val(
     board: chess.Board, alpha: int = -1000000, beta: int = 1000000, depth: int = 3
 ) -> int:
     if depth == 0:
-        return base(board)
+        return (base(board), None)
     if board.is_stalemate():
-        return 30 * (1 - 2 * board.turn)
+        return (30 * (1 - 2 * board.turn), None)
 
     res = 1000000 * (1 - 2 * board.turn)
+    rmove = None
     check = []
     capture = []
     nothing = []
@@ -41,51 +42,42 @@ def val(
             nothing.append(move)
 
     for move in check + capture + nothing:
+        iscapture = board.is_capture(move)
         board.push(move)
         if board.is_stalemate():
             cur = -30 * (1 - 2 * board.turn)
         elif board.is_checkmate():
             cur = 500000 * (1 - 2 * board.turn)
+        elif depth == 1 and iscapture:
+            cur = val(board, alpha, beta, 1)[0]
         else:
-            cur = val(board, alpha, beta, depth - 1)
+            cur = val(board, alpha, beta, depth - 1)[0]
         board.pop()
 
         if board.turn:
-            res = max(res, cur)
+            if cur > res:
+                res = cur
+                rmove = move
             alpha = max(alpha, cur)
         else:
-            res = min(res, cur)
+            if cur < res:
+                res = cur
+                rmove = move
             beta = min(beta, cur)
         if alpha >= beta:
             break
 
-    return res
+    return (res, rmove)
 
 
 def move(board: chess.Board) -> chess.Move:
-    if len(board.piece_map()) <= 12:
-        pos.score = pos.end
-    best_val = 1000000 * (1 - 2 * board.turn)
-    best_move = []
+    return val(board)[1]
 
-    for move in board.legal_moves:
-        board.push(move)
-        if board.is_checkmate():
-            board.pop()
-            return move
-        cur = val(board)
-        board.pop()
-        if board.turn:
-            if best_val < cur:
-                best_val = cur
-                best_move = [move]
-            elif best_val == cur:
-                best_move.append(move)
-        else:
-            if best_val > cur:
-                best_val = cur
-                best_move = [move]
-            elif best_val == cur:
-                best_move.append(move)
 
-    return random.choice(best_move)
+if __name__ == "__main__":
+    board = chess.Board("rnb1kb1r/p6p/2p1p1p1/5p1B/Np1P4/7q/PPP2P1P/R1BQK2R")
+    print(val(board))
+    m = move(board)
+    print(m)
+    board.push(m)
+    print(val(board))
