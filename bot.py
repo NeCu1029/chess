@@ -1,9 +1,8 @@
 import chess
-import random
 import pos
 
 
-def base(board: chess.BaseBoard):
+def base(board: chess.BaseBoard) -> int:
     res = 0
     bs = str(board).split()
     for i in range(64):
