@@ -23,6 +23,7 @@ while True:
                 if board.is_legal(move):
                     board.push(move)
                     print("수를 두었습니다:", move)
+                    print(board)
                     break
                 else:
                     print("수가 올바르지 않습니다.")
@@ -32,6 +33,7 @@ while True:
         move = bot.move(board)
         board.push(move)
         print("봇이 수를 두었습니다:", move)
+        print(board)
 
     if board.can_claim_draw() or board.is_stalemate():
         print("무승부입니다.")
